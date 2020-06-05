@@ -30,13 +30,11 @@ class _ChatRoomsState extends State<ChatRooms> {
     print(Constanse.myName);
   }
 
- 
-
   Widget getConversationChat() {
     return StreamBuilder(
       stream: Firestore.instance
           .collection('chat')
-          .where("users", arrayContains: Constanse.myName)
+          .where("emails", arrayContains: Constanse.myEmail)
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -50,11 +48,13 @@ class _ChatRoomsState extends State<ChatRooms> {
                 j < snapshot.data.documents[i].data['users'].length;
                 j++) {
               String user = snapshot.data.documents[i].data['users'][j];
-              if (user != Constanse.myName) {
+              String emails = snapshot.data.documents[i].data['emails'][j];
+              if (emails != Constanse.myEmail) {
                 userNames.add(ChatRoomModel(
                   user,
                   snapshot.data.documents[i].data['lastMsg'],
                   snapshot.data.documents[i].data['time'],
+                  emails,
                 ));
               }
             }
@@ -64,11 +64,13 @@ class _ChatRoomsState extends State<ChatRooms> {
           return ListView.builder(
             itemCount: userNames.length,
             itemBuilder: (context, i) {
-              return ChatConversation(
-                userName: userNames[i].userName,
-                message: userNames[i].lastMsg,
-                
-              );
+              return userNames[i].lastMsg == ""
+                  ? Container()
+                  : ChatConversation(
+                      userName: userNames[i].userName,
+                      message: userNames[i].lastMsg,
+                      userEmail: userNames[i].userEmail,
+                    );
             },
           );
         }
@@ -80,7 +82,7 @@ class _ChatRoomsState extends State<ChatRooms> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFF5e5b52),
-      appBar: appBar(context, exit: true),
+      appBar: appBar(context, exit: true, noLogo: true),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
@@ -90,6 +92,12 @@ class _ChatRoomsState extends State<ChatRooms> {
               ));
         },
         child: Icon(Icons.search),
+      ),
+      drawer: Drawer(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [Text(Constanse.myName)],
+        ),
       ),
       body: Container(
         child: getConversationChat(),
@@ -101,9 +109,10 @@ class _ChatRoomsState extends State<ChatRooms> {
 class ChatConversation extends StatelessWidget {
   final String message;
   final String userName;
-  const ChatConversation({Key key, this.message, this.userName})
+  final String userEmail;
+  const ChatConversation({Key key, this.message, this.userName, this.userEmail})
       : super(key: key);
- getChatRoomID(String a, String b) {
+  getChatRoomID(String a, String b) {
     if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
       return "$b\_$a";
     } else {
@@ -111,8 +120,8 @@ class ChatConversation extends StatelessWidget {
     }
   }
 
-  startConversation(String userName, BuildContext context) {
-    String roomID = getChatRoomID(userName, Constanse.myName);
+  startConversation(String userEmail, String userName, BuildContext context) {
+    String roomID = getChatRoomID(userEmail, Constanse.myEmail);
     List<String> users = [userName, Constanse.myName];
     Map<String, dynamic> chatRoomMap = {
       "users": users,
@@ -128,22 +137,52 @@ class ChatConversation extends StatelessWidget {
         builder: (context) => ConversationScreen(
           userName: userName,
           chatRoomID: roomID,
-
+           userEmail: userEmail,
         ),
       ),
     );
+    
   }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 16),
       child: ListTile(
-        onTap: (){
-          startConversation(userName, context);
+        onTap: () {
+          startConversation(userEmail, userName, context);
+        },
+        onLongPress: () {
+          AlertDialog alert = AlertDialog(
+              title: Text(userName),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FlatButton(onPressed: () {}, child: Text("View")),
+                  FlatButton(
+                      onPressed: () {
+                        Database().getUserID(userEmail).then((v) {
+                          v.documents.forEach((result) {
+                            Database()
+                                .addToBlockList(userEmail, result.documentID);
+                          });
+                        });
+                      },
+                      child: Text("Block")),
+                  FlatButton(onPressed: () {}, child: Text("Delete"))
+                ],
+              ));
+
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return alert;
+            },
+          );
         },
         title: Text(
           userName,
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white, fontSize: 22),
         ),
         subtitle: Text(
           message,

@@ -11,7 +11,7 @@ userLang() async {
   appName = await HelperFunction.getUserLang();
 }
 
-Widget appBar(BuildContext context, {bool exit = false, bool stream = false, Function toggle}) {
+Widget appBar(BuildContext context, {bool exit = false, bool stream = false, Function toggle, bool noLogo = false}) {
   userLang();
   return AppBar(
     backgroundColor: Color(0xFF5e5b52),
@@ -20,7 +20,7 @@ Widget appBar(BuildContext context, {bool exit = false, bool stream = false, Fun
         ? Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Image.network(
+             noLogo?Container(): Image.network(
                 "https://www.pinclipart.com/picdir/big/54-546980_sms-transparent-sms-blue-icon-png-clipart.png",
                 fit: BoxFit.fitWidth,
                 height: 50,
@@ -35,7 +35,7 @@ Widget appBar(BuildContext context, {bool exit = false, bool stream = false, Fun
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Text(appName == "ar" ? "الأصدقاء" : "Friends"),
-              Image.network(
+            noLogo?Container():  Image.network(
                 "https://www.pinclipart.com/picdir/big/54-546980_sms-transparent-sms-blue-icon-png-clipart.png",
                 fit: BoxFit.fitWidth,
                 height: 50,

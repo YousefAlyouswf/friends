@@ -6,7 +6,9 @@ import 'package:new_chat/services/database.dart';
 class ConversationScreen extends StatefulWidget {
   final String userName;
   final String chatRoomID;
-  const ConversationScreen({Key key, this.userName, this.chatRoomID})
+  final String userEmail;
+  const ConversationScreen(
+      {Key key, this.userName, this.chatRoomID, this.userEmail})
       : super(key: key);
   @override
   _ConversationScreenState createState() => _ConversationScreenState();
@@ -56,8 +58,13 @@ class _ConversationScreenState extends State<ConversationScreen> {
         "sendBy": Constanse.myName,
         "time": DateTime.now().toUtc()
       };
-      Database().sendTextChat(widget.chatRoomID, messageMap);
-      Database().setLastMsg(widget.chatRoomID, _msg.text,DateTime.now().toUtc().millisecondsSinceEpoch);
+
+      Database().sendTextChat(widget.chatRoomID, messageMap, widget.userEmail,
+          _msg.text, DateTime.now().toUtc().millisecondsSinceEpoch, context);
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text('Show Snackbar'),
+        duration: Duration(seconds: 3),
+      ));
       _msg.clear();
     }
   }
@@ -112,12 +119,62 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           color: Colors.white54,
                           borderRadius: BorderRadius.circular(50),
                         ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.send,
-                            size: 30,
+                        child: Builder(
+                          builder: (context) => IconButton(
+                            icon: Icon(
+                              Icons.send,
+                              size: 30,
+                            ),
+                            onPressed: () async {
+                              if (_msg.text.isNotEmpty) {
+                                Map<String, dynamic> messageMap = {
+                                  "msg": _msg.text,
+                                  "sendBy": Constanse.myName,
+                                  "time": DateTime.now().toUtc()
+                                };
+
+                                bool blockedMe = false;
+                                await Firestore.instance
+                                    .collection('users')
+                                    .where("email", isEqualTo: widget.userEmail)
+                                    .getDocuments()
+                                    .then((v) {
+                                  v.documents.forEach((result) async {
+                                    for (var i = 0;
+                                        i < result['blockList'].length;
+                                        i++) {
+                                      String email = result['blockList'][i];
+                                      if (email == Constanse.myEmail) {
+                                        blockedMe = true;
+                                      }
+                                    }
+                                    if (blockedMe) {
+                                      Scaffold.of(context)
+                                          .showSnackBar(SnackBar(
+                                        content: Text('the user blocked you'),
+                                        backgroundColor: Colors.red[200],
+                                        duration: Duration(seconds: 3),
+                                      ));
+                                    } else {
+                                      await Firestore.instance
+                                          .collection('chat')
+                                          .document(widget.chatRoomID)
+                                          .collection('chatmsg')
+                                          .add(messageMap);
+                                      Database().setLastMsg(
+                                          widget.chatRoomID,
+                                          _msg.text,
+                                          DateTime.now()
+                                              .toUtc()
+                                              .millisecondsSinceEpoch);
+                                    }_msg.clear();
+                                  });
+                                });
+
+                                
+                              }
+                            },
                           ),
-                          onPressed: sendMssages,
                         ),
                       ),
                     ),

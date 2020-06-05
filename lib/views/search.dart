@@ -51,14 +51,16 @@ class _SearchState extends State<Search> {
     setState(() {});
   }
 
-  startConversation(String userName) {
-    String roomID = getChatRoomID(userName, Constanse.myName);
+  startConversation(String userEmail, String userName) {
+    String roomID = getChatRoomID(userEmail, Constanse.myEmail);
     List<String> users = [userName, Constanse.myName];
+    List<String> emails = [userEmail, Constanse.myEmail];
     Map<String, dynamic> chatRoomMap = {
       "users": users,
+      "emails": emails,
       "roomID": roomID,
       "lastMsg": "",
-      "time": "",
+      "time": 0,
     };
 
     Database().createChatRoom(roomID, chatRoomMap);
@@ -68,6 +70,7 @@ class _SearchState extends State<Search> {
         builder: (context) => ConversationScreen(
           userName: userName,
           chatRoomID: roomID,
+          userEmail: userEmail,
         ),
       ),
     );
@@ -104,6 +107,7 @@ class _SearchState extends State<Search> {
                           child: ListTile(
                             onTap: () {
                               startConversation(
+                                searchSnapshot.documents[i].data['email'],
                                 searchSnapshot.documents[i].data['name'],
                               );
                             },
@@ -177,6 +181,7 @@ class _SearchState extends State<Search> {
                                 child: ListTile(
                                   onTap: () {
                                     startConversation(
+                                      snapshot.data.documents[i].data['email'],
                                       snapshot.data.documents[i].data['name'],
                                     );
                                   },

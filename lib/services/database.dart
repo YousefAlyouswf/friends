@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:new_chat/services/constense.dart';
 
 class Database {
@@ -87,12 +88,33 @@ class Database {
     }
   }
 
-  sendTextChat(String chatRoomID, messageMap) {
-    Firestore.instance
-        .collection('chat')
-        .document(chatRoomID)
-        .collection('chatmsg')
-        .add(messageMap);
+  sendTextChat(String chatRoomID, messageMap, String userEmail, String text,
+      int time, BuildContext context) async {
+    bool blockedMe = false;
+    await Firestore.instance
+        .collection('users')
+        .where("email", isEqualTo: userEmail)
+        .getDocuments()
+        .then((v) {
+      v.documents.forEach((result) async {
+        for (var i = 0; i < result['blockList'].length; i++) {
+          String email = result['blockList'][i];
+          if (email == Constanse.myEmail) {
+            blockedMe = true;
+          }
+        }
+        if (blockedMe) {
+          
+        } else {
+          await Firestore.instance
+              .collection('chat')
+              .document(chatRoomID)
+              .collection('chatmsg')
+              .add(messageMap);
+          setLastMsg(chatRoomID, text, time);
+        }
+      });
+    });
   }
 
   setLastMsg(String chatID, String lastMsg, int time) {
@@ -115,5 +137,18 @@ class Database {
         .collection('chat')
         .where("users", arrayContains: Constanse.myName)
         .snapshots();
+  }
+
+  addToBlockList(String userEmail, String userID) {
+    Firestore.instance.collection('users').document(userID).updateData({
+      "blockList": FieldValue.arrayUnion([userEmail])
+    });
+  }
+
+  getUserID(String userEmail) async {
+    return await Firestore.instance
+        .collection('users')
+        .where('email', isEqualTo: Constanse.myEmail)
+        .getDocuments();
   }
 }
