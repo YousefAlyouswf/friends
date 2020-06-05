@@ -57,6 +57,8 @@ class _SearchState extends State<Search> {
     Map<String, dynamic> chatRoomMap = {
       "users": users,
       "roomID": roomID,
+      "lastMsg": "",
+      "time": "",
     };
 
     Database().createChatRoom(roomID, chatRoomMap);
@@ -65,6 +67,7 @@ class _SearchState extends State<Search> {
       MaterialPageRoute(
         builder: (context) => ConversationScreen(
           userName: userName,
+          chatRoomID: roomID,
         ),
       ),
     );

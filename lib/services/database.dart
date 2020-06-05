@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:new_chat/services/constense.dart';
 
 class Database {
   getUserByUserName(String userName) async {
@@ -23,7 +24,8 @@ class Database {
 
   getAllUsersa() async {
     return await Firestore.instance
-        .collection('users').orderBy("logined", descending: true)
+        .collection('users')
+        .orderBy("logined", descending: true)
         .getDocuments()
         .catchError((e) {
       print(e);
@@ -83,5 +85,35 @@ class Database {
         print(e);
       });
     }
+  }
+
+  sendTextChat(String chatRoomID, messageMap) {
+    Firestore.instance
+        .collection('chat')
+        .document(chatRoomID)
+        .collection('chatmsg')
+        .add(messageMap);
+  }
+
+  setLastMsg(String chatID, String lastMsg, int time) {
+    Firestore.instance
+        .collection('chat')
+        .document(chatID)
+        .updateData({"lastMsg": lastMsg, "time": time});
+  }
+
+  getTextChat(String chatRoomID) {
+    return Firestore.instance
+        .collection('chat')
+        .document(chatRoomID)
+        .collection('chatmsg')
+        .getDocuments();
+  }
+
+  getChatRooms(String userName) {
+    return Firestore.instance
+        .collection('chat')
+        .where("users", arrayContains: Constanse.myName)
+        .snapshots();
   }
 }

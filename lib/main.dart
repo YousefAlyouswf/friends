@@ -19,6 +19,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+
     HelperFunction.getUserLoggedIn().then((value) {
       setState(() {
         if (value == null) {
@@ -29,6 +30,7 @@ class _MyAppState extends State<MyApp> {
       });
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
