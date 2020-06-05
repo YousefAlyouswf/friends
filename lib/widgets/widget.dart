@@ -11,7 +11,7 @@ userLang() async {
   appName = await HelperFunction.getUserLang();
 }
 
-Widget appBar(BuildContext context, {bool exit = false}) {
+Widget appBar(BuildContext context, {bool exit = false, bool stream = false, Function toggle}) {
   userLang();
   return AppBar(
     backgroundColor: Color(0xFF5e5b52),
@@ -59,6 +59,12 @@ Widget appBar(BuildContext context, {bool exit = false}) {
 
                 Database().updateLoginedToFlase(Constanse.myEmail);
               },
+            )
+          : Container(),
+      stream
+          ? IconButton(
+              icon: Icon(Icons.view_stream),
+              onPressed: toggle,
             )
           : Container()
     ],

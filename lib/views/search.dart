@@ -13,6 +13,10 @@ class Search extends StatefulWidget {
 class _SearchState extends State<Search> {
   TextEditingController _search = TextEditingController();
   bool isSearch = false;
+  bool textboxSearchHide = true;
+  bool hideKeyboardFirsttime = false;
+  bool isStream = true;
+  bool textboxEmpty = true;
   QuerySnapshot searchSnapshot;
   initSearch() {
     if (_search.text != "") {
@@ -37,6 +41,14 @@ class _SearchState extends State<Search> {
         });
       });
     }
+    if (hideKeyboardFirsttime) {
+      FocusScope.of(context).requestFocus(FocusNode());
+    }
+    if (textboxEmpty) {
+      textboxSearchHide = true;
+    }
+    hideKeyboardFirsttime = true;
+    setState(() {});
   }
 
   startConversation(String userName) {
@@ -49,11 +61,19 @@ class _SearchState extends State<Search> {
 
     Database().createChatRoom(roomID, chatRoomMap);
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => ConversationScreen(
-                  userName: userName,
-                )));
+      context,
+      MaterialPageRoute(
+        builder: (context) => ConversationScreen(
+          userName: userName,
+        ),
+      ),
+    );
+  }
+
+  switchStreamToRegular() {
+    setState(() {
+      isStream = !isStream;
+    });
   }
 
   getChatRoomID(String a, String b) {
@@ -102,8 +122,8 @@ class _SearchState extends State<Search> {
                                 shape: BoxShape.circle,
                                 image: new DecorationImage(
                                   fit: BoxFit.fill,
-                                  image: new AssetImage(
-                                      "assets/images/chat.png"),
+                                  image:
+                                      new AssetImage("assets/images/chat.png"),
                                 ),
                               ),
                             ),
@@ -114,12 +134,85 @@ class _SearchState extends State<Search> {
                                 fontSize: 25,
                               ),
                             ),
-
-                            
                           ),
                         );
                 },
               );
+  }
+
+  Widget streamList() {
+    return searchSnapshot == null
+        ? Container()
+        : searchSnapshot.documents.length == 0
+            ? Center(child: simpleTextStyle("لا يوجد مستخدم بهذا الأسم"))
+            : StreamBuilder(
+                stream: _search.text == ""
+                    ? Firestore.instance
+                        .collection("users")
+                        .orderBy('logined', descending: true)
+                        .snapshots()
+                    : Firestore.instance
+                        .collection("users")
+                        .orderBy('logined', descending: true)
+                        .where('name', isEqualTo: _search.text)
+                        .snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Text(
+                      'No Data...',
+                    );
+                  } else {
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: snapshot.data.documents.length,
+                      itemBuilder: (context, i) {
+                        return snapshot.data.documents[i].data['email'] ==
+                                Constanse.myEmail
+                            ? Container()
+                            : Container(
+                                padding: EdgeInsets.symmetric(vertical: 10),
+                                child: ListTile(
+                                  onTap: () {
+                                    startConversation(
+                                      snapshot.data.documents[i].data['name'],
+                                    );
+                                  },
+                                  trailing: Container(
+                                    height: 15,
+                                    width: 15,
+                                    decoration: BoxDecoration(
+                                      color: snapshot
+                                              .data.documents[i].data['logined']
+                                          ? Colors.green
+                                          : Colors.grey,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  leading: Container(
+                                    width: 60.0,
+                                    height: 60.0,
+                                    decoration: new BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: new DecorationImage(
+                                        fit: BoxFit.fill,
+                                        image: new NetworkImage(
+                                            "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ-BSzuWpHh8QvPn2YUyA53IMzgM0qWFzRWKis50zcji3Q-WKbN&usqp=CAU"),
+                                      ),
+                                    ),
+                                  ),
+                                  title: Text(
+                                    snapshot.data.documents[i].data['name'],
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 25,
+                                    ),
+                                  ),
+                                ),
+                              );
+                      },
+                    );
+                  }
+                });
   }
 
   @override
@@ -132,13 +225,27 @@ class _SearchState extends State<Search> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFF5e5b52),
-      appBar: appBar(context),
+      appBar: appBar(context, stream: true, toggle: switchStreamToRegular),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            FlatButton(
+              onPressed: () {
+                setState(() {
+                  textboxSearchHide = false;
+                  Navigator.pop(context);
+                });
+              },
+              child: Text("بحث"),
+            ),
+          ],
+        ),
+      ),
       body: Column(
         children: [
-          Container(
-            child: Column(
-              children: [
-                Container(
+          textboxSearchHide
+              ? Container()
+              : Container(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   color: Colors.grey[600],
                   child: Row(
@@ -152,7 +259,7 @@ class _SearchState extends State<Search> {
                           ),
                           child: IconButton(
                             icon: Icon(
-                              Icons.search,
+                              textboxEmpty ? Icons.cancel : Icons.search,
                               size: 30,
                             ),
                             onPressed: initSearch,
@@ -164,6 +271,14 @@ class _SearchState extends State<Search> {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: TextField(
                             controller: _search,
+                            onChanged: (value) {
+                              setState(() {});
+                              if (value.length > 0) {
+                                textboxEmpty = false;
+                              } else {
+                                textboxEmpty = true;
+                              }
+                            },
                             textAlign: TextAlign.end,
                             style: TextStyle(
                               color: Colors.white,
@@ -180,11 +295,8 @@ class _SearchState extends State<Search> {
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
           Expanded(
-            child: searchList(),
+            child: isStream ? streamList() : searchList(),
           ),
         ],
       ),
