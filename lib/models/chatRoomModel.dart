@@ -3,6 +3,7 @@ class ChatRoomModel{
   final String lastMsg;
   final int time;
   final String userEmail;
+  final String roomID;
 
-  ChatRoomModel(this.userName, this.lastMsg, this.time, this.userEmail);
+  ChatRoomModel(this.userName, this.lastMsg, this.time, this.userEmail, this.roomID);
 }

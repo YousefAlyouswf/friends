@@ -15,40 +15,51 @@ class ConversationScreen extends StatefulWidget {
 }
 
 class _ConversationScreenState extends State<ConversationScreen> {
+  ScrollController _scrollController = new ScrollController();
   TextEditingController _msg = TextEditingController();
   Widget chatMsgList() {
-    return StreamBuilder(
-        stream: Firestore.instance
-            .collection('chat')
-            .document(widget.chatRoomID)
-            .collection('chatmsg')
-            .orderBy('time', descending: false)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Text(
-              'No Data...',
-            );
-          } else {
-            return ListView.builder(
-                shrinkWrap: true,
-                itemCount: snapshot.data.documents.length,
-                itemBuilder: (context, i) {
-                  bool isMe;
-                  if (snapshot.data.documents[i].data['sendBy'] ==
-                      Constanse.myName) {
-                    isMe = true;
-                  } else {
-                    isMe = false;
-                  }
+    final bottom = MediaQuery.of(context).viewInsets.bottom;
+    print(bottom);
+    return Padding(
+      padding: EdgeInsets.only(bottom: 100),
+      child: Container(
+        height: MediaQuery.of(context).size.height * .75,
+        child: StreamBuilder(
+            stream: Firestore.instance
+                .collection('chat')
+                .document(widget.chatRoomID)
+                .collection('chatmsg')
+                .orderBy('time', descending: true)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return Text(
+                  'No Data...',
+                );
+              } else {
+                return ListView.builder(
+                    controller: _scrollController,
+                    reverse: true,
+                    shrinkWrap: true,
+                    itemCount: snapshot.data.documents.length,
+                    itemBuilder: (context, i) {
+                      bool isMe;
+                      if (snapshot.data.documents[i].data['sendBy'] ==
+                          Constanse.myName) {
+                        isMe = true;
+                      } else {
+                        isMe = false;
+                      }
 
-                  return MsgTile(
-                    message: snapshot.data.documents[i].data['msg'],
-                    isMe: isMe,
-                  );
-                });
-          }
-        });
+                      return MsgTile(
+                        message: snapshot.data.documents[i].data['msg'],
+                        isMe: isMe,
+                      );
+                    });
+              }
+            }),
+      ),
+    );
   }
 
   sendMssages() {
@@ -87,6 +98,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
         child: Stack(
           children: [
             chatMsgList(),
+            //كتابة الرساله وارسالها الى الصديق
             Container(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -151,8 +163,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                     if (blockedMe) {
                                       Scaffold.of(context)
                                           .showSnackBar(SnackBar(
-                                        content: Text('the user blocked you'),
-                                        backgroundColor: Colors.red[200],
+                                        content: Text(
+                                          'the user blocked you',
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                        backgroundColor: Colors.red[300],
                                         duration: Duration(seconds: 3),
                                       ));
                                     } else {
@@ -167,11 +182,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                           DateTime.now()
                                               .toUtc()
                                               .millisecondsSinceEpoch);
-                                    }_msg.clear();
+                                      _msg.clear();
+                                    }
                                   });
                                 });
-
-                                
                               }
                             },
                           ),

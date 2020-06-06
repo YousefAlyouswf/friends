@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:new_chat/services/constense.dart';
 import 'package:new_chat/services/database.dart';
 import 'package:new_chat/views/converstionScreen.dart';
+import 'package:new_chat/views/user_info.dart';
 import 'package:new_chat/widgets/widget.dart';
 
 class Search extends StatefulWidget {
@@ -67,9 +68,9 @@ class _SearchState extends State<Search> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ConversationScreen(
+        builder: (context) => UserInfoScreen(
           userName: userName,
-          chatRoomID: roomID,
+          roomID: roomID,
           userEmail: userEmail,
         ),
       ),

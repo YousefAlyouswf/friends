@@ -5,6 +5,7 @@ import 'package:new_chat/services/constense.dart';
 import 'package:new_chat/services/database.dart';
 import 'package:new_chat/services/helperFunctions.dart';
 import 'package:new_chat/views/search.dart';
+import 'package:new_chat/views/user_info.dart';
 import 'package:new_chat/widgets/widget.dart';
 
 import 'converstionScreen.dart';
@@ -55,6 +56,7 @@ class _ChatRoomsState extends State<ChatRooms> {
                   snapshot.data.documents[i].data['lastMsg'],
                   snapshot.data.documents[i].data['time'],
                   emails,
+                  snapshot.data.documents[i].data['roomID'],
                 ));
               }
             }
@@ -70,6 +72,7 @@ class _ChatRoomsState extends State<ChatRooms> {
                       userName: userNames[i].userName,
                       message: userNames[i].lastMsg,
                       userEmail: userNames[i].userEmail,
+                      roomID: userNames[i].roomID,
                     );
             },
           );
@@ -110,7 +113,9 @@ class ChatConversation extends StatefulWidget {
   final String message;
   final String userName;
   final String userEmail;
-  const ChatConversation({Key key, this.message, this.userName, this.userEmail})
+  final String roomID;
+  const ChatConversation(
+      {Key key, this.message, this.userName, this.userEmail, this.roomID})
       : super(key: key);
 
   @override
@@ -177,22 +182,22 @@ class _ChatConversationState extends State<ChatConversation> {
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      FlatButton(onPressed: () {}, child: Text("View")),
                       FlatButton(
                           onPressed: () {
-                            Database().getUserID(widget.userEmail).then((v) {
-                              v.documents.forEach((result) {
-                                if (blocked) {
-                                  Database().removeFromBlockList(
-                                      widget.userEmail, result.documentID);
-                                } else {
-                                  Database().addToBlockList(
-                                      widget.userEmail, result.documentID);
-                                }
-                              });
-                            });
-                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => UserInfoScreen(
+                                  userName: widget.userName,
+                                  roomID: widget.roomID,
+                                  userEmail: widget.userEmail,
+                                ),
+                              ),
+                            ).then((value) => Navigator.pop(context));
                           },
+                          child: Text("View")),
+                      FlatButton(
+                          onPressed: () => blockButton(blocked),
                           child: Text(blocked ? "Unblock" : "Block")),
                       FlatButton(onPressed: () {}, child: Text("Delete"))
                     ],
@@ -229,5 +234,18 @@ class _ChatConversationState extends State<ChatConversation> {
         ),
       ),
     );
+  }
+
+  blockButton(bool blocked) {
+    Database().getUserID(widget.userEmail).then((v) {
+      v.documents.forEach((result) {
+        if (blocked) {
+          Database().removeFromBlockList(widget.userEmail, result.documentID);
+        } else {
+          Database().addToBlockList(widget.userEmail, result.documentID);
+        }
+      });
+    });
+    Navigator.pop(context);
   }
 }
