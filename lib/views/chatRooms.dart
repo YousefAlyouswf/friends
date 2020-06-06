@@ -106,12 +106,18 @@ class _ChatRoomsState extends State<ChatRooms> {
   }
 }
 
-class ChatConversation extends StatelessWidget {
+class ChatConversation extends StatefulWidget {
   final String message;
   final String userName;
   final String userEmail;
   const ChatConversation({Key key, this.message, this.userName, this.userEmail})
       : super(key: key);
+
+  @override
+  _ChatConversationState createState() => _ChatConversationState();
+}
+
+class _ChatConversationState extends State<ChatConversation> {
   getChatRoomID(String a, String b) {
     if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
       return "$b\_$a";
@@ -137,11 +143,10 @@ class ChatConversation extends StatelessWidget {
         builder: (context) => ConversationScreen(
           userName: userName,
           chatRoomID: roomID,
-           userEmail: userEmail,
+          userEmail: userEmail,
         ),
       ),
     );
-    
   }
 
   @override
@@ -150,42 +155,64 @@ class ChatConversation extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 16),
       child: ListTile(
         onTap: () {
-          startConversation(userEmail, userName, context);
+          startConversation(widget.userEmail, widget.userName, context);
         },
-        onLongPress: () {
-          AlertDialog alert = AlertDialog(
-              title: Text(userName),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  FlatButton(onPressed: () {}, child: Text("View")),
-                  FlatButton(
-                      onPressed: () {
-                        Database().getUserID(userEmail).then((v) {
-                          v.documents.forEach((result) {
-                            Database()
-                                .addToBlockList(userEmail, result.documentID);
-                          });
-                        });
-                      },
-                      child: Text("Block")),
-                  FlatButton(onPressed: () {}, child: Text("Delete"))
-                ],
-              ));
+        onLongPress: () async {
+          bool blocked = false;
+          await Firestore.instance
+              .collection('users')
+              .where("email", isEqualTo: Constanse.myEmail)
+              .getDocuments()
+              .then((v) {
+            v.documents.forEach((result) async {
+              for (var i = 0; i < result['blockList'].length; i++) {
+                String email = result['blockList'][i];
+                if (email == widget.userEmail) {
+                  blocked = true;
+                }
+              }
 
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return alert;
-            },
-          );
+              AlertDialog alert = AlertDialog(
+                  title: Text(widget.userName),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FlatButton(onPressed: () {}, child: Text("View")),
+                      FlatButton(
+                          onPressed: () {
+                            Database().getUserID(widget.userEmail).then((v) {
+                              v.documents.forEach((result) {
+                                if (blocked) {
+                                  Database().removeFromBlockList(
+                                      widget.userEmail, result.documentID);
+                                } else {
+                                  Database().addToBlockList(
+                                      widget.userEmail, result.documentID);
+                                }
+                              });
+                            });
+                            Navigator.pop(context);
+                          },
+                          child: Text(blocked ? "Unblock" : "Block")),
+                      FlatButton(onPressed: () {}, child: Text("Delete"))
+                    ],
+                  ));
+
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return alert;
+                },
+              );
+            });
+          });
         },
         title: Text(
-          userName,
+          widget.userName,
           style: TextStyle(color: Colors.white, fontSize: 22),
         ),
         subtitle: Text(
-          message,
+          widget.message,
           style: TextStyle(color: Colors.white),
         ),
         leading: Container(

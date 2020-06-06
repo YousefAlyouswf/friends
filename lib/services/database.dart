@@ -104,7 +104,6 @@ class Database {
           }
         }
         if (blockedMe) {
-          
         } else {
           await Firestore.instance
               .collection('chat')
@@ -144,11 +143,39 @@ class Database {
       "blockList": FieldValue.arrayUnion([userEmail])
     });
   }
-
+removeFromBlockList(String userEmail, String userID) {
+    Firestore.instance.collection('users').document(userID).updateData({
+      "blockList": FieldValue.arrayRemove([userEmail])
+    });
+  }
   getUserID(String userEmail) async {
     return await Firestore.instance
         .collection('users')
         .where('email', isEqualTo: Constanse.myEmail)
         .getDocuments();
+  }
+
+  Future<String> didIblockedHimOrHer(String userEmail) async {
+    bool blocked = false;
+    await Firestore.instance
+        .collection('users')
+        .where("email", isEqualTo: userEmail)
+        .getDocuments()
+        .then((v) {
+      v.documents.forEach((result) async {
+        for (var i = 0; i < result['blockList'].length; i++) {
+          String email = result['blockList'][i];
+          if (email == Constanse.myEmail) {
+            blocked = true;
+          }
+        }
+        if (blocked) {
+          return "yes";
+        } else {
+          return "no";
+        }
+      });
+    });
+    return null;
   }
 }
