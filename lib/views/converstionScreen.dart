@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:new_chat/services/constense.dart';
 import 'package:new_chat/services/database.dart';
 
+import 'user_info.dart';
+
 class ConversationScreen extends StatefulWidget {
   final String userName;
   final String chatRoomID;
   final String userEmail;
+  final String userIMage;
   const ConversationScreen(
-      {Key key, this.userName, this.chatRoomID, this.userEmail})
+      {Key key, this.userName, this.chatRoomID, this.userEmail, this.userIMage})
       : super(key: key);
   @override
   _ConversationScreenState createState() => _ConversationScreenState();
@@ -60,24 +63,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
     );
   }
 
-  sendMssages() {
-    if (_msg.text.isNotEmpty) {
-      Map<String, dynamic> messageMap = {
-        "msg": _msg.text,
-        "sendBy": Constanse.myName,
-        "time": DateTime.now().toUtc()
-      };
-
-      Database().sendTextChat(widget.chatRoomID, messageMap, widget.userEmail,
-          _msg.text, DateTime.now().toUtc().millisecondsSinceEpoch, context);
-      Scaffold.of(context).showSnackBar(SnackBar(
-        content: Text('Show Snackbar'),
-        duration: Duration(seconds: 3),
-      ));
-      _msg.clear();
-    }
-  }
-
   @override
   void initState() {
     super.initState();
@@ -91,6 +76,38 @@ class _ConversationScreenState extends State<ConversationScreen> {
         backgroundColor: Color(0xFF5e5b52),
         title: Text(widget.userName),
         centerTitle: true,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => UserInfoScreen(
+                      userName: widget.userName,
+                      roomID: widget.chatRoomID,
+                      userEmail: widget.userEmail,
+                    ),
+                  ),
+                );
+              },
+              child: Container(
+                width: 40.0,
+                height: 50.0,
+                decoration: new BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: new DecorationImage(
+                    fit: BoxFit.fill,
+                    image: new NetworkImage(widget.userIMage != null
+                        ? widget.userIMage
+                        : "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ-BSzuWpHh8QvPn2YUyA53IMzgM0qWFzRWKis50zcji3Q-WKbN&usqp=CAU"),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       body: Container(
         child: Stack(
@@ -136,55 +153,20 @@ class _ConversationScreenState extends State<ConversationScreen> {
                               size: 30,
                             ),
                             onPressed: () async {
-                              if (_msg.text.isNotEmpty) {
-                                Map<String, dynamic> messageMap = {
-                                  "msg": _msg.text,
-                                  "sendBy": Constanse.myName,
-                                  "time": DateTime.now().toUtc()
-                                };
-
-                                bool blockedMe = false;
-                                await Firestore.instance
-                                    .collection('users')
-                                    .where("email", isEqualTo: widget.userEmail)
-                                    .getDocuments()
-                                    .then((v) {
-                                  v.documents.forEach((result) async {
-                                    for (var i = 0;
-                                        i < result['blockList'].length;
-                                        i++) {
-                                      String email = result['blockList'][i];
-                                      if (email == Constanse.myEmail) {
-                                        blockedMe = true;
-                                      }
-                                    }
-                                    if (blockedMe) {
-                                      Scaffold.of(context)
-                                          .showSnackBar(SnackBar(
-                                        content: Text(
-                                          'the user blocked you',
-                                          style: TextStyle(color: Colors.black),
-                                        ),
-                                        backgroundColor: Colors.red[300],
-                                        duration: Duration(seconds: 3),
-                                      ));
-                                    } else {
-                                      await Firestore.instance
-                                          .collection('chat')
-                                          .document(widget.chatRoomID)
-                                          .collection('chatmsg')
-                                          .add(messageMap);
-                                      Database().setLastMsg(
-                                          widget.chatRoomID,
-                                          _msg.text,
-                                          DateTime.now()
-                                              .toUtc()
-                                              .millisecondsSinceEpoch);
-                                      _msg.clear();
-                                    }
-                                  });
-                                });
-                              }
+                              await sendMessage().then((v) {
+                                if (v) {
+                                  _msg.clear();
+                                } else {
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                    content: Text(
+                                      'the user blocked you',
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                    backgroundColor: Colors.red[300],
+                                    duration: Duration(seconds: 3),
+                                  ));
+                                }
+                              });
                             },
                           ),
                         ),
@@ -198,6 +180,47 @@ class _ConversationScreenState extends State<ConversationScreen> {
         ),
       ),
     );
+  }
+
+  Future<bool> sendMessage() async {
+    bool blockedMe = false;
+    if (_msg.text.isNotEmpty) {
+      Map<String, dynamic> messageMap = {
+        "msg": _msg.text,
+        "sendBy": Constanse.myName,
+        "time": DateTime.now().toUtc()
+      };
+
+      await Firestore.instance
+          .collection('users')
+          .where("email", isEqualTo: widget.userEmail)
+          .getDocuments()
+          .then((v) {
+        v.documents.forEach((result) async {
+          for (var i = 0; i < result['blockList'].length; i++) {
+            String email = result['blockList'][i];
+            if (email == Constanse.myEmail) {
+              blockedMe = true;
+            }
+          }
+          if (blockedMe) {
+          } else {
+            await Database().setLastMsg(widget.chatRoomID, _msg.text,
+                DateTime.now().toUtc().millisecondsSinceEpoch);
+            await Firestore.instance
+                .collection('chat')
+                .document(widget.chatRoomID)
+                .collection('chatmsg')
+                .add(messageMap);
+          }
+        });
+      });
+    }
+    if (blockedMe) {
+      return false;
+    } else {
+      return true;
+    }
   }
 }
 
@@ -215,12 +238,13 @@ class MsgTile extends StatelessWidget {
               margin: EdgeInsets.all(8),
               padding: EdgeInsets.all(24),
               decoration: BoxDecoration(
-                  color: Colors.grey,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    bottomLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  )),
+                color: Colors.grey,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  bottomLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+              ),
               child: Text(
                 message,
                 textAlign: TextAlign.end,
@@ -235,12 +259,13 @@ class MsgTile extends StatelessWidget {
               margin: EdgeInsets.all(8),
               padding: EdgeInsets.all(24),
               decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  )),
+                color: Colors.blue,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+              ),
               child: Text(
                 message,
                 textAlign: TextAlign.start,

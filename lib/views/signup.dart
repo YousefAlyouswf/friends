@@ -56,6 +56,7 @@ class _SignupState extends State<Signup> {
             'email': emailController.text,
             'password': passwordController.text,
             'blockList': FieldValue.arrayUnion([""]),
+            "image": "",
           };
 
           Database().uploadUserInfo(userMap);

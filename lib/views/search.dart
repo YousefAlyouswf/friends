@@ -51,16 +51,18 @@ class _SearchState extends State<Search> {
     setState(() {});
   }
 
-  startConversation(String userEmail, String userName) {
+  startConversation(String userEmail, String userName, String userImage) {
     String roomID = getChatRoomID(userEmail, Constanse.myEmail);
     List<String> users = [userName, Constanse.myName];
     List<String> emails = [userEmail, Constanse.myEmail];
+    List<String> images = [userImage, Constanse.myImage];
     Map<String, dynamic> chatRoomMap = {
       "users": users,
       "emails": emails,
       "roomID": roomID,
       "lastMsg": "",
       "time": 0,
+      "image": images
     };
 
     Database().createChatRoom(roomID, chatRoomMap);
@@ -71,6 +73,7 @@ class _SearchState extends State<Search> {
           userName: userName,
           roomID: roomID,
           userEmail: userEmail,
+          userImage: userImage,
         ),
       ),
     );
@@ -109,6 +112,7 @@ class _SearchState extends State<Search> {
                               startConversation(
                                 searchSnapshot.documents[i].data['email'],
                                 searchSnapshot.documents[i].data['name'],
+                                searchSnapshot.documents[i].data['image'],
                               );
                             },
                             trailing: Container(
@@ -183,6 +187,7 @@ class _SearchState extends State<Search> {
                                     startConversation(
                                       snapshot.data.documents[i].data['email'],
                                       snapshot.data.documents[i].data['name'],
+                                      searchSnapshot.documents[i].data['image'],
                                     );
                                   },
                                   trailing: Container(
@@ -203,8 +208,13 @@ class _SearchState extends State<Search> {
                                       shape: BoxShape.circle,
                                       image: new DecorationImage(
                                         fit: BoxFit.fill,
-                                        image: new NetworkImage(
-                                            "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ-BSzuWpHh8QvPn2YUyA53IMzgM0qWFzRWKis50zcji3Q-WKbN&usqp=CAU"),
+                                        image: new NetworkImage(searchSnapshot
+                                                    .documents[i]
+                                                    .data['image'] !=
+                                                null
+                                            ? searchSnapshot
+                                                .documents[i].data['image']
+                                            : "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ-BSzuWpHh8QvPn2YUyA53IMzgM0qWFzRWKis50zcji3Q-WKbN&usqp=CAU"),
                                       ),
                                     ),
                                   ),
@@ -233,7 +243,8 @@ class _SearchState extends State<Search> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFF5e5b52),
-      appBar: appBar(context, stream: true, toggle: switchStreamToRegular),
+      appBar: appBar(context,
+          stream: true, toggle: switchStreamToRegular, noLogo: true),
       drawer: Drawer(
         child: ListView(
           children: [

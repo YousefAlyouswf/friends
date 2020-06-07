@@ -175,7 +175,7 @@ Container myProfile() {
 }
 
 Container userProfileButtonToChatConversation(
-    BuildContext context, String userName, String roomID, String userEmail) {
+    BuildContext context, String userName, String roomID, String userEmail, String userImage) {
   return Container(
     alignment: Alignment.bottomCenter,
     child: ClipPath(
@@ -185,29 +185,22 @@ Container userProfileButtonToChatConversation(
         height: MediaQuery.of(context).size.height * 0.12,
         decoration: new BoxDecoration(
           color: Colors.blue,
-          // borderRadius: BorderRadius.only(
-          //   topRight: Radius.circular(40),
-          //   topLeft: Radius.circular(40),
-          // ),
         ),
         child: FlatButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ConversationScreen(
-                  userName: userName,
-                  chatRoomID: roomID,
-                  userEmail: userEmail,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ConversationScreen(
+                    userName: userName,
+                    chatRoomID: roomID,
+                    userEmail: userEmail,
+                    userIMage: userImage,
+                  ),
                 ),
-              ),
-            );
-          },
-          child: Text(
-            "Chat",
-            style: TextStyle(color: Colors.white, fontSize: 32),
-          ),
-        ),
+              );
+            },
+            child: Icon(Icons.message, color: Colors.white, size: 50)),
       ),
     ),
   );

@@ -27,8 +27,8 @@ class _ChatRoomsState extends State<ChatRooms> {
   getUserInfo() async {
     Constanse.myName = await HelperFunction.getUseName();
     Constanse.myEmail = await HelperFunction.getUserEmail();
+    Constanse.myImage = await HelperFunction.getUserImage();
     setState(() {});
-    print(Constanse.myName);
   }
 
   Widget getConversationChat() {
@@ -50,6 +50,7 @@ class _ChatRoomsState extends State<ChatRooms> {
                 j++) {
               String user = snapshot.data.documents[i].data['users'][j];
               String emails = snapshot.data.documents[i].data['emails'][j];
+              String image = snapshot.data.documents[i].data['image'][j];
               if (emails != Constanse.myEmail) {
                 userNames.add(ChatRoomModel(
                   user,
@@ -57,6 +58,7 @@ class _ChatRoomsState extends State<ChatRooms> {
                   snapshot.data.documents[i].data['time'],
                   emails,
                   snapshot.data.documents[i].data['roomID'],
+                  image,
                 ));
               }
             }
@@ -73,6 +75,7 @@ class _ChatRoomsState extends State<ChatRooms> {
                       message: userNames[i].lastMsg,
                       userEmail: userNames[i].userEmail,
                       roomID: userNames[i].roomID,
+                      userImage: userNames[i].userImage,
                     );
             },
           );
@@ -114,8 +117,9 @@ class _ChatRoomsState extends State<ChatRooms> {
                         shape: BoxShape.circle,
                         image: new DecorationImage(
                           fit: BoxFit.fill,
-                          image: new NetworkImage(
-                              "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ-BSzuWpHh8QvPn2YUyA53IMzgM0qWFzRWKis50zcji3Q-WKbN&usqp=CAU"),
+                          image: new NetworkImage(Constanse.myImage != null
+                              ? Constanse.myImage
+                              : "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ-BSzuWpHh8QvPn2YUyA53IMzgM0qWFzRWKis50zcji3Q-WKbN&usqp=CAU"),
                         ),
                       ),
                     ),
@@ -186,8 +190,14 @@ class ChatConversation extends StatefulWidget {
   final String userName;
   final String userEmail;
   final String roomID;
+  final String userImage;
   const ChatConversation(
-      {Key key, this.message, this.userName, this.userEmail, this.roomID})
+      {Key key,
+      this.message,
+      this.userName,
+      this.userEmail,
+      this.roomID,
+      this.userImage})
       : super(key: key);
 
   @override
@@ -221,6 +231,7 @@ class _ChatConversationState extends State<ChatConversation> {
           userName: userName,
           chatRoomID: roomID,
           userEmail: userEmail,
+          userIMage: widget.userImage,
         ),
       ),
     );
@@ -299,8 +310,9 @@ class _ChatConversationState extends State<ChatConversation> {
             shape: BoxShape.circle,
             image: new DecorationImage(
               fit: BoxFit.fill,
-              image: new NetworkImage(
-                  "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ-BSzuWpHh8QvPn2YUyA53IMzgM0qWFzRWKis50zcji3Q-WKbN&usqp=CAU"),
+              image: new NetworkImage(widget.userImage != null
+                  ? widget.userImage
+                  : "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ-BSzuWpHh8QvPn2YUyA53IMzgM0qWFzRWKis50zcji3Q-WKbN&usqp=CAU"),
             ),
           ),
         ),
