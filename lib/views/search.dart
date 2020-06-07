@@ -4,6 +4,7 @@ import 'package:new_chat/services/constense.dart';
 import 'package:new_chat/services/database.dart';
 import 'package:new_chat/views/user_info.dart';
 import 'package:new_chat/widgets/widget.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class Search extends StatefulWidget {
   @override
@@ -15,7 +16,7 @@ class _SearchState extends State<Search> {
   bool isSearch = false;
   bool textboxSearchHide = true;
   bool hideKeyboardFirsttime = false;
-  bool isStream = true;
+  bool isStream = false;
   bool textboxEmpty = true;
   QuerySnapshot searchSnapshot;
   initSearch() {
@@ -102,49 +103,61 @@ class _SearchState extends State<Search> {
                 shrinkWrap: true,
                 itemCount: searchSnapshot.documents.length,
                 itemBuilder: (context, i) {
+                  String imageURI = searchSnapshot.documents[i].data['image'];
                   return searchSnapshot.documents[i].data['email'] ==
                           Constanse.myEmail
                       ? Container()
                       : Container(
                           padding: EdgeInsets.symmetric(vertical: 10),
-                          child: ListTile(
-                            onTap: () {
-                              startConversation(
-                                searchSnapshot.documents[i].data['email'],
-                                searchSnapshot.documents[i].data['name'],
-                                searchSnapshot.documents[i].data['image'],
-                              );
-                            },
-                            trailing: Container(
-                              height: 15,
-                              width: 15,
-                              decoration: BoxDecoration(
-                                color:
-                                    searchSnapshot.documents[i].data['logined']
+                          child: Column(
+                            children: [
+                              ListTile(
+                                onTap: () {
+                                  startConversation(
+                                    searchSnapshot.documents[i].data['email'],
+                                    searchSnapshot.documents[i].data['name'],
+                                    searchSnapshot.documents[i].data['image'],
+                                  );
+                                },
+                                trailing: Container(
+                                  height: 15,
+                                  width: 15,
+                                  decoration: BoxDecoration(
+                                    color: searchSnapshot
+                                            .documents[i].data['logined']
                                         ? Colors.green
                                         : Colors.grey,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            leading: Container(
-                              width: 60.0,
-                              height: 60.0,
-                              decoration: new BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: new DecorationImage(
-                                  fit: BoxFit.fill,
-                                  image:
-                                      new AssetImage("assets/images/chat.png"),
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                leading: Container(
+                                  width: 60.0,
+                                  height: 60.0,
+                                  decoration: new BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: new DecorationImage(
+                                      fit: BoxFit.fill,
+                                      image: new NetworkImage(imageURI),
+                                    ),
+                                  ),
+                                ),
+                                title: Text(
+                                  searchSnapshot.documents[i].data['name'],
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 25,
+                                  ),
                                 ),
                               ),
-                            ),
-                            title: Text(
-                              searchSnapshot.documents[i].data['name'],
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 25,
+                              SizedBox(
+                                height: 10,
                               ),
-                            ),
+                              Container(
+                                height: 1,
+                                width: MediaQuery.of(context).size.width - 40,
+                                color: Colors.black26,
+                              )
+                            ],
                           ),
                         );
                 },
@@ -177,54 +190,66 @@ class _SearchState extends State<Search> {
                       shrinkWrap: true,
                       itemCount: snapshot.data.documents.length,
                       itemBuilder: (context, i) {
+                        String imageURI =
+                            searchSnapshot.documents[i].data['image'];
                         return snapshot.data.documents[i].data['email'] ==
                                 Constanse.myEmail
                             ? Container()
                             : Container(
                                 padding: EdgeInsets.symmetric(vertical: 10),
-                                child: ListTile(
-                                  onTap: () {
-                                    startConversation(
-                                      snapshot.data.documents[i].data['email'],
-                                      snapshot.data.documents[i].data['name'],
-                                      searchSnapshot.documents[i].data['image'],
-                                    );
-                                  },
-                                  trailing: Container(
-                                    height: 15,
-                                    width: 15,
-                                    decoration: BoxDecoration(
-                                      color: snapshot
-                                              .data.documents[i].data['logined']
-                                          ? Colors.green
-                                          : Colors.grey,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  leading: Container(
-                                    width: 60.0,
-                                    height: 60.0,
-                                    decoration: new BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: new DecorationImage(
-                                        fit: BoxFit.fill,
-                                        image: new NetworkImage(searchSnapshot
-                                                    .documents[i]
-                                                    .data['image'] !=
-                                                null
-                                            ? searchSnapshot
-                                                .documents[i].data['image']
-                                            : "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ-BSzuWpHh8QvPn2YUyA53IMzgM0qWFzRWKis50zcji3Q-WKbN&usqp=CAU"),
+                                child: Column(
+                                  children: [
+                                    ListTile(
+                                      onTap: () {
+                                        startConversation(
+                                          snapshot
+                                              .data.documents[i].data['email'],
+                                          snapshot
+                                              .data.documents[i].data['name'],
+                                          searchSnapshot
+                                              .documents[i].data['image'],
+                                        );
+                                      },
+                                      trailing: Container(
+                                        height: 15,
+                                        width: 15,
+                                        decoration: BoxDecoration(
+                                          color: snapshot.data.documents[i]
+                                                  .data['logined']
+                                              ? Colors.green
+                                              : Colors.grey,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                      leading: Container(
+                                        width: 60.0,
+                                        height: 60.0,
+                                        decoration: new BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          image: new DecorationImage(
+                                            fit: BoxFit.fill,
+                                            image: new NetworkImage(imageURI),
+                                          ),
+                                        ),
+                                      ),
+                                      title: Text(
+                                        snapshot.data.documents[i].data['name'],
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 25,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  title: Text(
-                                    snapshot.data.documents[i].data['name'],
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 25,
+                                    SizedBox(
+                                      height: 10,
                                     ),
-                                  ),
+                                    Container(
+                                      height: 1,
+                                      width: MediaQuery.of(context).size.width -
+                                          40,
+                                      color: Colors.black26,
+                                    )
+                                  ],
                                 ),
                               );
                       },
@@ -243,8 +268,7 @@ class _SearchState extends State<Search> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFF5e5b52),
-      appBar: appBar(context,
-          stream: true, toggle: switchStreamToRegular, noLogo: true),
+      appBar: appBar(context, exit: true, noLogo: true),
       drawer: Drawer(
         child: ListView(
           children: [
