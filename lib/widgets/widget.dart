@@ -184,8 +184,13 @@ Container myProfile() {
   return Container();
 }
 
-Container userProfileButtonToChatConversation(BuildContext context,
-    String userName, String roomID, String userEmail, String userImage) {
+Container userProfileButtonToChatConversation(
+    BuildContext context,
+    String userName,
+    String roomID,
+    String userEmail,
+    String userImage,
+    bool isMale) {
   return Container(
     alignment: Alignment.bottomCenter,
     child: ClipPath(
@@ -194,7 +199,7 @@ Container userProfileButtonToChatConversation(BuildContext context,
         width: double.infinity,
         height: MediaQuery.of(context).size.height * 0.12,
         decoration: new BoxDecoration(
-          color: Colors.blue,
+          color: isMale ? Colors.blue : Colors.pink,
         ),
         child: FlatButton(
             onPressed: () {
@@ -211,6 +216,221 @@ Container userProfileButtonToChatConversation(BuildContext context,
               );
             },
             child: Icon(Icons.message, color: Colors.white, size: 50)),
+      ),
+    ),
+  );
+}
+
+Align userinfo(BuildContext context, String userName, bool isMale, String age,
+    String astrology, String astrologyDiscribe) {
+  return Align(
+    alignment: Alignment(0, .6),
+    child: Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+        height: MediaQuery.of(context).size.height * .25,
+        child: Card(
+          elevation: 5,
+          color: Colors.transparent,
+          child: Column(
+            children: [
+              Text(
+                userName,
+                style: TextStyle(
+                    color: isMale ? Colors.blue : Colors.pink,
+                    fontSize: 36,
+                    fontWeight: FontWeight.w700),
+              ),
+              SizedBox(
+                height: 30,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(
+                    age,
+                    style: TextStyle(
+                        color: isMale ? Colors.blue : Colors.pink,
+                        fontSize: 30,
+                        fontWeight: FontWeight.w700),
+                  ),
+                  InkWell(
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    onTap: () {
+                      showModalBottomSheet(
+                          backgroundColor: Colors.transparent,
+                          context: context,
+                          builder: (context) => SingleChildScrollView(
+                                child: Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: isMale
+                                        ? Colors.blue[100]
+                                        : Colors.pink[100],
+                                    borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(40),
+                                      topLeft: Radius.circular(40),
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      astrologyDiscribe,
+                                      textDirection: TextDirection.rtl,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                              ));
+                    },
+                    child: Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(
+                        10,
+                      ),
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.blue,
+                            blurRadius: 6.0,
+                          ),
+                        ],
+                        borderRadius: BorderRadius.circular(30),
+                        gradient: LinearGradient(
+                          colors: isMale
+                              ? [Colors.white, Colors.blueGrey[600]]
+                              : [Colors.white, Colors.pinkAccent[200]],
+                        ),
+                      ),
+                      child: Text(
+                        astrology,
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+Align myImageProfile(Function choosrImageSource, String image) {
+  return Align(
+    alignment: Alignment(0, 0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        InkWell(
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          onTap: choosrImageSource,
+          child: Container(
+            width: 100.0,
+            height: 100.0,
+            decoration: new BoxDecoration(
+              border: Border.all(
+                width: 3.5,
+                color: Color(0xFF5e5b52),
+              ),
+              shape: BoxShape.circle,
+              image: new DecorationImage(
+                fit: BoxFit.fill,
+                image: new NetworkImage(
+                  image == ""
+                      ? "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ-BSzuWpHh8QvPn2YUyA53IMzgM0qWFzRWKis50zcji3Q-WKbN&usqp=CAU"
+                      : image,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Align userImageProfile(String image) {
+  return Align(
+    alignment: Alignment(0, 0),
+    child: Container(
+      width: 100.0,
+      height: 100.0,
+      decoration: new BoxDecoration(
+        border: Border.all(
+          width: 3.5,
+          color: Color(0xFF5e5b52),
+        ),
+        shape: BoxShape.circle,
+        image: new DecorationImage(
+          fit: BoxFit.fill,
+          image: new NetworkImage(
+            image == ""
+                ? "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ-BSzuWpHh8QvPn2YUyA53IMzgM0qWFzRWKis50zcji3Q-WKbN&usqp=CAU"
+                : image,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+Container bigImage(double heigh, String image) {
+  return Container(
+    height: heigh / 2,
+    decoration: new BoxDecoration(
+      image: new DecorationImage(
+        fit: BoxFit.fill,
+        colorFilter:
+            ColorFilter.mode(Colors.black.withOpacity(0.7), BlendMode.dstATop),
+        image: new NetworkImage(
+          image == ""
+              ? "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ-BSzuWpHh8QvPn2YUyA53IMzgM0qWFzRWKis50zcji3Q-WKbN&usqp=CAU"
+              : image,
+        ),
+      ),
+    ),
+  );
+}
+
+Align cameraIcon(bool imageSourceVisible, Function _takePicture) {
+  return Align(
+    alignment: Alignment(0.5, 0.2),
+    child: Visibility(
+      visible: imageSourceVisible,
+      child: InkWell(
+        onTap: _takePicture,
+        child: Icon(
+          Icons.camera,
+          size: 60,
+          color: Colors.pink,
+        ),
+      ),
+    ),
+  );
+}
+
+Align galaryIcon(bool imageSourceVisible, Function _takeFromGalary) {
+  return Align(
+    alignment: Alignment(-0.5, 0.2),
+    child: Visibility(
+      visible: imageSourceVisible,
+      child: InkWell(
+        onTap: _takeFromGalary,
+        child: Icon(
+          Icons.image,
+          size: 60,
+          color: Colors.pink,
+        ),
       ),
     ),
   );

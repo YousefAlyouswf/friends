@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:new_chat/services/auth.dart';
 import 'package:new_chat/services/database.dart';
 import 'package:new_chat/services/helperFunctions.dart';
 import 'package:new_chat/views/chatRooms.dart';
 import 'package:new_chat/widgets/widget.dart';
-
 import 'forgotpassword.dart';
 
 class Signup extends StatefulWidget {
@@ -29,6 +29,8 @@ class _SignupState extends State<Signup> {
         passwordController.text.isEmpty ||
         nameController.text.isEmpty) {
       fluttertoastWarning("يجب ملئ جميع الحقول");
+    } else if (!dateSelected) {
+      fluttertoastWarning("أختر تاريخ ميلادك");
     } else {
       _authMethod
           .signupWithEmailAndPassword(
@@ -57,6 +59,7 @@ class _SignupState extends State<Signup> {
             'password': passwordController.text,
             'blockList': FieldValue.arrayUnion([""]),
             'isMale': isMale,
+            'DOB': selectedDate,
             "image":
                 "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ-BSzuWpHh8QvPn2YUyA53IMzgM0qWFzRWKis50zcji3Q-WKbN&usqp=CAU",
           };
@@ -79,7 +82,29 @@ class _SignupState extends State<Signup> {
     });
   }
 
+  bool dateSelected = false;
   bool isMale = true;
+  DateTime selectedDate = DateTime.now();
+
+  Future<Null> _selectDate(BuildContext context) async {
+    selectedDate = DateTime.now();
+    final DateTime picked = await showDatePicker(
+        context: context,
+        locale: Locale('ar', 'SA'),
+        initialDate: DateTime(
+            selectedDate.year - 18, selectedDate.month, selectedDate.day),
+        firstDate: DateTime(1970),
+        lastDate: DateTime(
+            selectedDate.year - 18, selectedDate.month, selectedDate.day));
+
+    if (picked != null && picked != selectedDate)
+      setState(() {
+        selectedDate = picked;
+        dateSelected = true;
+      });
+     FocusScope.of(context).requestFocus(FocusNode());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -167,6 +192,13 @@ class _SignupState extends State<Signup> {
                           style: TextStyle(color: Colors.blue, fontSize: 22),
                         ),
                       ],
+                    ),
+                    FlatButton(
+                      onPressed: () => _selectDate(context),
+                      child: Text(
+                        'أختر تاريخ ميلادك',
+                        style: TextStyle(color: Colors.white, fontSize: 23),
+                      ),
                     ),
                     SizedBox(
                       height: 16,

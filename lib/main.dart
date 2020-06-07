@@ -3,6 +3,7 @@ import 'package:new_chat/services/helperFunctions.dart';
 import 'package:new_chat/toggel/toggelSigninAndSignup.dart';
 import 'package:new_chat/views/chatRooms.dart';
 import 'dart:ui' as ui;
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
   runApp(MyApp());
@@ -31,13 +32,21 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     String _sysLng = ui.window.locale.languageCode;
     HelperFunction.saveUserLanguage(_sysLng);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: [
+        // ... app-specific localization delegate[s] here
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en'), // English
+        const Locale('ar'), // Arabic
+      ],
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,

@@ -36,6 +36,10 @@ dependencies:
   flutter_custom_clippers: ^1.1.1
   image_picker: ^0.6.7+1
   firebase_storage: ^3.1.5
+  timeago: ^2.0.26
+  age: ^0.0.1
+  flutter_localizations:
+    sdk: flutter
 dev_dependencies:
   flutter_test:
     sdk: flutter
