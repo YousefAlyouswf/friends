@@ -19,6 +19,8 @@ Widget appBar(
   bool stream = false,
   Function toggle,
   bool noLogo = false,
+  bool reload = false,
+  Function reloading,
 }) {
   userLang();
   return AppBar(
@@ -55,6 +57,14 @@ Widget appBar(
             ],
           ),
     actions: [
+      reload
+          ? IconButton(
+              icon: Icon(
+                Icons.refresh,
+                color: Colors.white,
+              ),
+              onPressed: reloading)
+          : Container(),
       exit
           ? IconButton(
               icon: Icon(Icons.exit_to_app),
@@ -174,8 +184,8 @@ Container myProfile() {
   return Container();
 }
 
-Container userProfileButtonToChatConversation(
-    BuildContext context, String userName, String roomID, String userEmail, String userImage) {
+Container userProfileButtonToChatConversation(BuildContext context,
+    String userName, String roomID, String userEmail, String userImage) {
   return Container(
     alignment: Alignment.bottomCenter,
     child: ClipPath(

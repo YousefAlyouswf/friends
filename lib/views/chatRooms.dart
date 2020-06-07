@@ -64,7 +64,6 @@ class _ChatRoomsState extends State<ChatRooms> {
             }
           }
           userNames.sort((b, a) => a.time.compareTo(b.time));
-          print(userNames);
           return ListView.builder(
             itemCount: userNames.length,
             itemBuilder: (context, i) {

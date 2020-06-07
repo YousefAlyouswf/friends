@@ -16,7 +16,8 @@ class UserInfoScreen extends StatefulWidget {
   final String userEmail;
   final String userImage;
 
-  UserInfoScreen({Key key, this.userName, this.roomID, this.userEmail, this.userImage})
+  UserInfoScreen(
+      {Key key, this.userName, this.roomID, this.userEmail, this.userImage})
       : super(key: key);
 
   @override
@@ -56,12 +57,12 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return Container();
-              }
-              return Container(
+              }else{
+                return Container(
                 child: Stack(
                   children: [
                     Align(
-                      alignment: Alignment(-0.5,0.2),
+                      alignment: Alignment(-0.5, 0.2),
                       child: Visibility(
                         visible: imageSourceVisible,
                         child: InkWell(
@@ -75,7 +76,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                       ),
                     ),
                     Align(
-                      alignment: Alignment(0.5,0.2),
+                      alignment: Alignment(0.5, 0.2),
                       child: Visibility(
                         visible: imageSourceVisible,
                         child: InkWell(
@@ -111,7 +112,6 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                               children: [
                                 InkWell(
                                   highlightColor: Colors.transparent,
-                             
                                   splashColor: Colors.transparent,
                                   onTap: choosrImageSource,
                                   child: Container(
@@ -125,9 +125,14 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                                       shape: BoxShape.circle,
                                       image: new DecorationImage(
                                         fit: BoxFit.fill,
-                                        image: new NetworkImage( snapshot.data.documents[0].data['image'] == ""
-                                ? "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ-BSzuWpHh8QvPn2YUyA53IMzgM0qWFzRWKis50zcji3Q-WKbN&usqp=CAU"
-                                : snapshot.data.documents[0].data['image'],),
+                                        image: new NetworkImage(
+                                          snapshot.data.documents[0]
+                                                      .data['image'] ==
+                                                  ""
+                                              ? "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ-BSzuWpHh8QvPn2YUyA53IMzgM0qWFzRWKis50zcji3Q-WKbN&usqp=CAU"
+                                              : snapshot.data.documents[0]
+                                                  .data['image'],
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -174,38 +179,25 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                               ),
                             ),
                             SizedBox(
-                              height: 10,
+                              height: 30,
                             ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 Text(
-                                  "USA",
+                                  snapshot.data.documents[0].data['isMale']
+                                      ? "Male"
+                                      : "Female",
                                   style: TextStyle(
                                     color: Colors.white,
                                   ),
                                 ),
-                                SizedBox(
-                                  height: 50,
+                                Text(
+                                  "25",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
                                 ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    Text(
-                                      "Female",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    Text(
-                                      "25",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                )
                               ],
                             )
                           ],
@@ -214,11 +206,17 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                     ),
                     widget.roomID == null
                         ? myProfile()
-                        : userProfileButtonToChatConversation(context,
-                            widget.userName, widget.roomID, widget.userEmail, widget.userImage),
+                        : userProfileButtonToChatConversation(
+                            context,
+                            widget.userName,
+                            widget.roomID,
+                            widget.userEmail,
+                            widget.userImage),
                   ],
                 ),
               );
+              }
+              
             }),
       ),
     );

@@ -9,7 +9,6 @@ class Database {
         .where('name', isEqualTo: userName)
         .getDocuments()
         .catchError((e) {
-      print(e);
     });
   }
 
@@ -19,7 +18,6 @@ class Database {
         .where('email', isEqualTo: userEmail)
         .getDocuments()
         .catchError((e) {
-      print(e);
     });
   }
 
@@ -29,13 +27,11 @@ class Database {
         .orderBy("logined", descending: true)
         .getDocuments()
         .catchError((e) {
-      print(e);
     });
   }
 
   uploadUserInfo(userMap) {
     Firestore.instance.collection('users').add(userMap).catchError((e) {
-      print(e);
     });
   }
 
@@ -83,7 +79,6 @@ class Database {
           .document(chatRoomId)
           .setData(chatRoomMap)
           .catchError((e) {
-        print(e);
       });
     }
   }

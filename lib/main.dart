@@ -36,7 +36,6 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     String _sysLng = ui.window.locale.languageCode;
     HelperFunction.saveUserLanguage(_sysLng);
-    print(_sysLng);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(

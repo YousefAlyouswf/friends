@@ -4,7 +4,6 @@ import 'package:new_chat/services/constense.dart';
 import 'package:new_chat/services/database.dart';
 import 'package:new_chat/views/user_info.dart';
 import 'package:new_chat/widgets/widget.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class Search extends StatefulWidget {
   @override
@@ -16,7 +15,6 @@ class _SearchState extends State<Search> {
   bool isSearch = false;
   bool textboxSearchHide = true;
   bool hideKeyboardFirsttime = false;
-  bool isStream = false;
   bool textboxEmpty = true;
   QuerySnapshot searchSnapshot;
   initSearch() {
@@ -80,11 +78,7 @@ class _SearchState extends State<Search> {
     );
   }
 
-  switchStreamToRegular() {
-    setState(() {
-      isStream = !isStream;
-    });
-  }
+  
 
   getChatRoomID(String a, String b) {
     if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
@@ -164,99 +158,7 @@ class _SearchState extends State<Search> {
               );
   }
 
-  Widget streamList() {
-    return searchSnapshot == null
-        ? Container()
-        : searchSnapshot.documents.length == 0
-            ? Center(child: simpleTextStyle("لا يوجد مستخدم بهذا الأسم"))
-            : StreamBuilder(
-                stream: _search.text == ""
-                    ? Firestore.instance
-                        .collection("users")
-                        .orderBy('logined', descending: true)
-                        .snapshots()
-                    : Firestore.instance
-                        .collection("users")
-                        .orderBy('logined', descending: true)
-                        .where('name', isEqualTo: _search.text)
-                        .snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return Text(
-                      'No Data...',
-                    );
-                  } else {
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: snapshot.data.documents.length,
-                      itemBuilder: (context, i) {
-                        String imageURI =
-                            searchSnapshot.documents[i].data['image'];
-                        return snapshot.data.documents[i].data['email'] ==
-                                Constanse.myEmail
-                            ? Container()
-                            : Container(
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                child: Column(
-                                  children: [
-                                    ListTile(
-                                      onTap: () {
-                                        startConversation(
-                                          snapshot
-                                              .data.documents[i].data['email'],
-                                          snapshot
-                                              .data.documents[i].data['name'],
-                                          searchSnapshot
-                                              .documents[i].data['image'],
-                                        );
-                                      },
-                                      trailing: Container(
-                                        height: 15,
-                                        width: 15,
-                                        decoration: BoxDecoration(
-                                          color: snapshot.data.documents[i]
-                                                  .data['logined']
-                                              ? Colors.green
-                                              : Colors.grey,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                      leading: Container(
-                                        width: 60.0,
-                                        height: 60.0,
-                                        decoration: new BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          image: new DecorationImage(
-                                            fit: BoxFit.fill,
-                                            image: new NetworkImage(imageURI),
-                                          ),
-                                        ),
-                                      ),
-                                      title: Text(
-                                        snapshot.data.documents[i].data['name'],
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 25,
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Container(
-                                      height: 1,
-                                      width: MediaQuery.of(context).size.width -
-                                          40,
-                                      color: Colors.black26,
-                                    )
-                                  ],
-                                ),
-                              );
-                      },
-                    );
-                  }
-                });
-  }
+  
 
   @override
   void initState() {
@@ -339,7 +241,7 @@ class _SearchState extends State<Search> {
                   ),
                 ),
           Expanded(
-            child: isStream ? streamList() : searchList(),
+            child: searchList(),
           ),
         ],
       ),

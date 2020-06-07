@@ -66,9 +66,9 @@ class _ForgotPassState extends State<ForgotPass> {
                                   r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                               .hasMatch(emailController.text);
                           if (emailController.text.isEmpty) {
-                            print("Empty");
+                        
                           } else if (!emailValid) {
-                            print("Bad Email");
+                           
                           } else {
                             AuthMethod().resetPassword(emailController.text);
                             signMe();

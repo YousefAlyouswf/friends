@@ -53,6 +53,7 @@ class _SigninState extends State<Signin> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,6 +91,7 @@ class _SigninState extends State<Signin> {
                     SizedBox(
                       height: 16,
                     ),
+                
                     Container(
                       width: double.infinity,
                       alignment: Alignment.centerRight,
@@ -112,10 +114,6 @@ class _SigninState extends State<Signin> {
                     FlatButton(
                         onPressed: signMe,
                         child: buttonsSings(context, "دخول", true)),
-                    FlatButton(
-                        onPressed: () {},
-                        child:
-                            buttonsSings(context, "Gmail دخول بحساب", false)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

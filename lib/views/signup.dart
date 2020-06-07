@@ -56,7 +56,9 @@ class _SignupState extends State<Signup> {
             'email': emailController.text,
             'password': passwordController.text,
             'blockList': FieldValue.arrayUnion([""]),
-            "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ-BSzuWpHh8QvPn2YUyA53IMzgM0qWFzRWKis50zcji3Q-WKbN&usqp=CAU",
+            'isMale': isMale,
+            "image":
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ-BSzuWpHh8QvPn2YUyA53IMzgM0qWFzRWKis50zcji3Q-WKbN&usqp=CAU",
           };
 
           Database().uploadUserInfo(userMap);
@@ -77,6 +79,7 @@ class _SignupState extends State<Signup> {
     });
   }
 
+  bool isMale = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,6 +142,31 @@ class _SignupState extends State<Signup> {
                             },
                             child: simpleTextStyle('نسيت كلمة المرور؟')),
                       ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Text(
+                          "أنثى",
+                          style: TextStyle(color: Colors.pink, fontSize: 22),
+                        ),
+                        Switch(
+                          value: isMale,
+                          onChanged: (value) {
+                            setState(() {
+                              isMale = value;
+                            });
+                          },
+                          activeTrackColor: Colors.blueAccent[200],
+                          activeColor: Colors.blue[100],
+                          inactiveTrackColor: Colors.pinkAccent[200],
+                          inactiveThumbColor: Colors.pink[100],
+                        ),
+                        Text(
+                          "ذكر",
+                          style: TextStyle(color: Colors.blue, fontSize: 22),
+                        ),
+                      ],
                     ),
                     SizedBox(
                       height: 16,
