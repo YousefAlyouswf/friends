@@ -5,6 +5,8 @@ import 'package:new_chat/services/constense.dart';
 import 'package:new_chat/services/database.dart';
 import 'package:new_chat/services/helperFunctions.dart';
 import 'package:new_chat/toggel/toggelSigninAndSignup.dart';
+import 'package:new_chat/views/converstionScreen.dart';
+import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 
 String appName = "";
 userLang() async {
@@ -166,4 +168,47 @@ void fluttertoastWarning(String text, [bool long = false]) {
       backgroundColor: Colors.red,
       textColor: Colors.white,
       fontSize: 16.0);
+}
+
+Container myProfile() {
+  return Container();
+}
+
+Container userProfileButtonToChatConversation(
+    BuildContext context, String userName, String roomID, String userEmail) {
+  return Container(
+    alignment: Alignment.bottomCenter,
+    child: ClipPath(
+      clipper: OvalTopBorderClipper(),
+      child: Container(
+        width: double.infinity,
+        height: MediaQuery.of(context).size.height * 0.12,
+        decoration: new BoxDecoration(
+          color: Colors.blue,
+          // borderRadius: BorderRadius.only(
+          //   topRight: Radius.circular(40),
+          //   topLeft: Radius.circular(40),
+          // ),
+        ),
+        child: FlatButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ConversationScreen(
+                  userName: userName,
+                  chatRoomID: roomID,
+                  userEmail: userEmail,
+                ),
+              ),
+            );
+          },
+          child: Text(
+            "Chat",
+            style: TextStyle(color: Colors.white, fontSize: 32),
+          ),
+        ),
+      ),
+    ),
+  );
 }

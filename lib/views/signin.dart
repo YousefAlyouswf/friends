@@ -4,7 +4,6 @@ import 'package:new_chat/services/database.dart';
 import 'package:new_chat/services/helperFunctions.dart';
 import 'package:new_chat/views/forgotpassword.dart';
 import 'package:new_chat/widgets/widget.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'chatRooms.dart';
 
 class Signin extends StatefulWidget {

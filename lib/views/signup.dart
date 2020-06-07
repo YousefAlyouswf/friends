@@ -1,10 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:new_chat/services/auth.dart';
 import 'package:new_chat/services/database.dart';
 import 'package:new_chat/services/helperFunctions.dart';
 import 'package:new_chat/views/chatRooms.dart';
 import 'package:new_chat/widgets/widget.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'forgotpassword.dart';
 
@@ -55,6 +55,7 @@ class _SignupState extends State<Signup> {
             'name': nameController.text,
             'email': emailController.text,
             'password': passwordController.text,
+            'blockList': FieldValue.arrayUnion([""]),
           };
 
           Database().uploadUserInfo(userMap);

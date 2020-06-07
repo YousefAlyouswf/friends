@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:new_chat/services/constense.dart';
 import 'package:new_chat/services/database.dart';
-import 'package:new_chat/views/converstionScreen.dart';
 import 'package:new_chat/views/user_info.dart';
 import 'package:new_chat/widgets/widget.dart';
 

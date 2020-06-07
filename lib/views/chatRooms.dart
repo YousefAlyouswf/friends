@@ -81,6 +81,7 @@ class _ChatRoomsState extends State<ChatRooms> {
     );
   }
 
+  List<String> drawerMenu = ["Profile", "Setting"];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,8 +99,79 @@ class _ChatRoomsState extends State<ChatRooms> {
       ),
       drawer: Drawer(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [Text(Constanse.myName)],
+          children: [
+            Container(
+              height: MediaQuery.of(context).size.height * .3,
+              color: Color(0xFF5e5b52),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 120.0,
+                      height: 120.0,
+                      decoration: new BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: new DecorationImage(
+                          fit: BoxFit.fill,
+                          image: new NetworkImage(
+                              "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQ-BSzuWpHh8QvPn2YUyA53IMzgM0qWFzRWKis50zcji3Q-WKbN&usqp=CAU"),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          Constanse.myName,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700),
+                        ),
+                        Text("Regular Member",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                            )),
+                        Icon(
+                          Icons.star,
+                          color: Colors.yellow,
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: Container(
+                child: ListView.builder(
+                    itemCount: drawerMenu.length,
+                    itemBuilder: (BuildContext ctxt, int i) {
+                      return ListTile(
+                        onTap: () {
+                          if (i == 0) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => UserInfoScreen(
+                                  userName: Constanse.myName,
+                                  userEmail: Constanse.myEmail,
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                        title: Text(drawerMenu[i]),
+                      );
+                    }),
+              ),
+            )
+          ],
         ),
       ),
       body: Container(

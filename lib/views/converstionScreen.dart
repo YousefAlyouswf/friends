@@ -18,8 +18,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
   ScrollController _scrollController = new ScrollController();
   TextEditingController _msg = TextEditingController();
   Widget chatMsgList() {
-    final bottom = MediaQuery.of(context).viewInsets.bottom;
-    print(bottom);
     return Padding(
       padding: EdgeInsets.only(bottom: 100),
       child: Container(
