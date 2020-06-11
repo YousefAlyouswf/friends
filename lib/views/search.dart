@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:new_chat/services/constense.dart';
 import 'package:new_chat/services/database.dart';
 import 'package:new_chat/views/user_info.dart';
+import 'package:new_chat/views/user_info_test.dart';
 import 'package:new_chat/widgets/widget.dart';
 
 class Search extends StatefulWidget {
@@ -50,7 +51,8 @@ class _SearchState extends State<Search> {
     setState(() {});
   }
 
-  startConversation(String userEmail, String userName, String userImage) {
+  startConversation(String userEmail, String userName, String userImage,
+      DateTime dob, bool isMale) {
     String roomID = getChatRoomID(userEmail, Constanse.myEmail);
     List<String> users = [userName, Constanse.myName];
     List<String> emails = [userEmail, Constanse.myEmail];
@@ -68,17 +70,18 @@ class _SearchState extends State<Search> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => UserInfoScreen(
+        builder: (context) => UserInfoTestScreen(
           userName: userName,
           roomID: roomID,
           userEmail: userEmail,
           userImage: userImage,
+          dob: dob,
+          isMale: isMale,
+          dobAndMale: true,
         ),
       ),
     );
   }
-
-  
 
   getChatRoomID(String a, String b) {
     if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
@@ -111,6 +114,9 @@ class _SearchState extends State<Search> {
                                     searchSnapshot.documents[i].data['email'],
                                     searchSnapshot.documents[i].data['name'],
                                     searchSnapshot.documents[i].data['image'],
+                                    searchSnapshot.documents[i].data['DOB']
+                                        .toDate(),
+                                    searchSnapshot.documents[i].data['isMale'],
                                   );
                                 },
                                 trailing: Container(
@@ -157,8 +163,6 @@ class _SearchState extends State<Search> {
                 },
               );
   }
-
-  
 
   @override
   void initState() {

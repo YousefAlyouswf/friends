@@ -6,6 +6,7 @@ import 'package:new_chat/services/database.dart';
 import 'package:new_chat/services/helperFunctions.dart';
 import 'package:new_chat/views/search.dart';
 import 'package:new_chat/views/user_info.dart';
+import 'package:new_chat/views/user_info_test.dart';
 import 'package:new_chat/widgets/widget.dart';
 
 import 'converstionScreen.dart';
@@ -27,7 +28,19 @@ class _ChatRoomsState extends State<ChatRooms> {
   getUserInfo() async {
     Constanse.myName = await HelperFunction.getUseName();
     Constanse.myEmail = await HelperFunction.getUserEmail();
-    Constanse.myImage = await HelperFunction.getUserImage();
+
+    await Firestore.instance
+        .collection('users')
+        .where("email", isEqualTo: Constanse.myEmail)
+        .getDocuments()
+        .then((value) {
+      value.documents.forEach((result) {
+        setState(() {
+          Constanse.myImage = result.data["image"];
+        });
+      });
+    });
+    // Constanse.myImage = await HelperFunction.getUserImage();
     setState(() {});
   }
 
@@ -161,9 +174,11 @@ class _ChatRoomsState extends State<ChatRooms> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => UserInfoScreen(
+                                builder: (context) => UserInfoTestScreen(
                                   userName: Constanse.myName,
                                   userEmail: Constanse.myEmail,
+                                  userImage: Constanse.myImage,
+                                  dobAndMale: false,
                                 ),
                               ),
                             );
@@ -269,19 +284,30 @@ class _ChatConversationState extends State<ChatConversation> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => UserInfoScreen(
+                                builder: (context) => UserInfoTestScreen(
                                   userName: widget.userName,
                                   roomID: widget.roomID,
                                   userEmail: widget.userEmail,
+                                  userImage: widget.userImage,
+                                  dobAndMale: false,
                                 ),
                               ),
                             ).then((value) => Navigator.pop(context));
                           },
-                          child: Text("View")),
+                          child: Text("الصفحة الشخصية")),
                       FlatButton(
                           onPressed: () => blockButton(blocked),
-                          child: Text(blocked ? "Unblock" : "Block")),
-                      FlatButton(onPressed: () {}, child: Text("Delete"))
+                          child: Text(
+                            blocked ? "إلغاء الحظر" : "حظر",
+                            style: TextStyle(
+                                color: blocked ? Colors.red : Colors.black),
+                          )),
+                      FlatButton(
+                          onPressed: () {
+                            Database().deleteChat(widget.roomID);
+                            Navigator.pop(context);
+                          },
+                          child: Text("حذف"))
                     ],
                   ));
 

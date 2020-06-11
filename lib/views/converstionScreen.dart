@@ -2,24 +2,45 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:new_chat/services/constense.dart';
 import 'package:new_chat/services/database.dart';
-
-import 'user_info.dart';
+import 'package:new_chat/views/user_info_test.dart';
 
 class ConversationScreen extends StatefulWidget {
   final String userName;
   final String chatRoomID;
   final String userEmail;
   final String userIMage;
+  final bool isMale;
   const ConversationScreen(
-      {Key key, this.userName, this.chatRoomID, this.userEmail, this.userIMage})
+      {Key key,
+      this.userName,
+      this.chatRoomID,
+      this.userEmail,
+      this.userIMage,
+      this.isMale})
       : super(key: key);
   @override
   _ConversationScreenState createState() => _ConversationScreenState();
 }
 
 class _ConversationScreenState extends State<ConversationScreen> {
+  int showMsg = 20;
+  bool showBtnReload = false;
   ScrollController _scrollController = new ScrollController();
   TextEditingController _msg = TextEditingController();
+
+  loadMore() {
+    setState(() {
+      showMsg += 20;
+       showBtnReload = !showBtnReload;
+    });
+  }
+
+  showBtn() {
+    setState(() {
+      showBtnReload = !showBtnReload;
+    });
+  }
+
   Widget chatMsgList() {
     return Padding(
       padding: EdgeInsets.only(bottom: 100),
@@ -31,6 +52,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 .document(widget.chatRoomID)
                 .collection('chatmsg')
                 .orderBy('time', descending: true)
+                .limit(showMsg)
                 .snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
@@ -38,25 +60,41 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   'No Data...',
                 );
               } else {
-                return ListView.builder(
-                    controller: _scrollController,
-                    reverse: true,
-                    shrinkWrap: true,
-                    itemCount: snapshot.data.documents.length,
-                    itemBuilder: (context, i) {
-                      bool isMe;
-                      if (snapshot.data.documents[i].data['sendBy'] ==
-                          Constanse.myName) {
-                        isMe = true;
-                      } else {
-                        isMe = false;
-                      }
+                return Column(
+                  children: [
+                    showBtnReload
+                        ? Container(
+                            width: MediaQuery.of(context).size.width,
+                            color: Colors.white24,
+                            child: FlatButton(
+                              onPressed: loadMore,
+                              child: Text("عرض المزيد"),
+                            ),
+                          )
+                        : Container(),
+                    Expanded(
+                      child: ListView.builder(
+                          controller: _scrollController,
+                          reverse: true,
+                          shrinkWrap: true,
+                          itemCount: snapshot.data.documents.length,
+                          itemBuilder: (context, i) {
+                            bool isMe;
+                            if (snapshot.data.documents[i].data['sendBy'] ==
+                                Constanse.myName) {
+                              isMe = true;
+                            } else {
+                              isMe = false;
+                            }
 
-                      return MsgTile(
-                        message: snapshot.data.documents[i].data['msg'],
-                        isMe: isMe,
-                      );
-                    });
+                            return MsgTile(
+                              message: snapshot.data.documents[i].data['msg'],
+                              isMe: isMe,
+                            );
+                          }),
+                    ),
+                  ],
+                );
               }
             }),
       ),
@@ -66,6 +104,14 @@ class _ConversationScreenState extends State<ConversationScreen> {
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(() {
+      if (_scrollController.position.atEdge) {
+        if (_scrollController.position.pixels == 0) {
+        } else {
+          showBtn();
+        }
+      }
+    });
   }
 
   @override
@@ -84,10 +130,12 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => UserInfoScreen(
+                    builder: (context) => UserInfoTestScreen(
                       userName: widget.userName,
                       roomID: widget.chatRoomID,
                       userEmail: widget.userEmail,
+                      userImage: widget.userIMage,
+                      dobAndMale: false,
                     ),
                   ),
                 );

@@ -38,6 +38,8 @@ dependencies:
   firebase_storage: ^3.1.5
   timeago: ^2.0.26
   age: ^0.0.1
+  adobe_xd: ^0.1.4
+
   flutter_localizations:
     sdk: flutter
 dev_dependencies:
@@ -58,6 +60,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
   - assets/images/chat.png
+  - assets/images/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

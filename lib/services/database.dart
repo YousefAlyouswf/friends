@@ -8,8 +8,7 @@ class Database {
         .collection('users')
         .where('name', isEqualTo: userName)
         .getDocuments()
-        .catchError((e) {
-    });
+        .catchError((e) {});
   }
 
   getUserByEmail(String userEmail) async {
@@ -17,8 +16,7 @@ class Database {
         .collection('users')
         .where('email', isEqualTo: userEmail)
         .getDocuments()
-        .catchError((e) {
-    });
+        .catchError((e) {});
   }
 
   getAllUsersa() async {
@@ -26,13 +24,11 @@ class Database {
         .collection('users')
         .orderBy("logined", descending: true)
         .getDocuments()
-        .catchError((e) {
-    });
+        .catchError((e) {});
   }
 
   uploadUserInfo(userMap) {
-    Firestore.instance.collection('users').add(userMap).catchError((e) {
-    });
+    Firestore.instance.collection('users').add(userMap).catchError((e) {});
   }
 
   updateLoginedToFlase(String email) async {
@@ -78,8 +74,7 @@ class Database {
           .collection('chat')
           .document(chatRoomId)
           .setData(chatRoomMap)
-          .catchError((e) {
-      });
+          .catchError((e) {});
     }
   }
 
@@ -138,11 +133,13 @@ class Database {
       "blockList": FieldValue.arrayUnion([userEmail])
     });
   }
-removeFromBlockList(String userEmail, String userID) {
+
+  removeFromBlockList(String userEmail, String userID) {
     Firestore.instance.collection('users').document(userID).updateData({
       "blockList": FieldValue.arrayRemove([userEmail])
     });
   }
+
   getUserID(String userEmail) async {
     return await Firestore.instance
         .collection('users')
@@ -172,5 +169,9 @@ removeFromBlockList(String userEmail, String userID) {
       });
     });
     return null;
+  }
+
+  deleteChat(String roomID) async {
+    await Firestore.instance.collection('chat').document(roomID).delete();
   }
 }
